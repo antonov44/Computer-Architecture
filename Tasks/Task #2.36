@@ -1,0 +1,39 @@
+
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdio.h>
+
+int get_hamming_distance(uint16_t x, uint16_t y)
+{
+    int result = x ^ y;
+    return __builtin_popcountll(result);
+}
+
+int hamming(uint16_t *code, int n, int k)
+{
+    int min_distance = k;
+    int tmp;
+
+    for (size_t i = 0; i < n; i++)
+    {
+        for (size_t j = i + 1; j < n; j++)
+        {
+            tmp = get_hamming_distance(code[i], code[j]);
+            if (tmp < min_distance)
+            {
+                min_distance = tmp;
+            }
+        }
+    }
+    
+    return min_distance;
+}
+
+int main()
+{
+    uint16_t code_array[] = {127, 0};
+    int min_distance = hamming(code_array, 2, 7);
+
+    printf("Minimal hamming distance: %d\n", min_distance);
+    return EXIT_SUCCESS;
+}
