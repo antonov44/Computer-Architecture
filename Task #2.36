@@ -1,0 +1,96 @@
+
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdio.h>
+
+#define BITS_COUNT 11
+
+#define BIT_01 0x001
+#define BIT_02 0x002
+#define BIT_03 0x004
+#define BIT_04 0x008
+#define BIT_05 0x010
+#define BIT_06 0x020
+#define BIT_07 0x040
+#define BIT_08 0x080
+#define BIT_09 0x100
+#define BIT_10 0x200
+#define BIT_11 0x400
+
+uint16_t BITS[BITS_COUNT] = {BIT_01, BIT_02, BIT_03, BIT_04, BIT_05, BIT_06, BIT_07, BIT_08, BIT_09, BIT_10, BIT_11};
+
+uint16_t is_bit_sets(uint16_t bit, uint16_t number)
+{
+    if (number & bit)
+        return 0x800 - 0x001;
+    return 0;
+}
+
+void print_binary(uint16_t number)
+{
+    for (int i = BITS_COUNT - 1; i >= 0; i--)
+    {
+        if (is_bit_sets(BITS[i], number))
+            printf("1");
+        else
+            printf("0");
+    }
+    printf("\n");
+}
+
+void hamming(short *ascii, short *encode)
+{
+    uint16_t ascii_copy = *ascii;
+    uint16_t encode_copy = 0;
+
+    encode_copy += BIT_01 & (
+        is_bit_sets(BIT_01, ascii_copy) ^ 
+        is_bit_sets(BIT_02, ascii_copy) ^ 
+        is_bit_sets(BIT_04, ascii_copy) ^ 
+        is_bit_sets(BIT_05, ascii_copy) ^ 
+        is_bit_sets(BIT_07, ascii_copy)
+    );
+
+    encode_copy += BIT_02 & (
+        is_bit_sets(BIT_01, ascii_copy) ^ 
+        is_bit_sets(BIT_03, ascii_copy) ^ 
+        is_bit_sets(BIT_04, ascii_copy) ^ 
+        is_bit_sets(BIT_06, ascii_copy) ^ 
+        is_bit_sets(BIT_07, ascii_copy)
+    );
+
+    encode_copy += BIT_03 & is_bit_sets(BIT_01, ascii_copy);
+    
+    encode_copy += BIT_04 & (
+        is_bit_sets(BIT_02, ascii_copy) ^ 
+        is_bit_sets(BIT_03, ascii_copy) ^ 
+        is_bit_sets(BIT_04, ascii_copy)
+    );
+
+    encode_copy += BIT_05 & is_bit_sets(BIT_02, ascii_copy);
+    encode_copy += BIT_06 & is_bit_sets(BIT_03, ascii_copy);
+    encode_copy += BIT_07 & is_bit_sets(BIT_04, ascii_copy);
+
+    encode_copy += BIT_08 & (
+        is_bit_sets(BIT_05, ascii_copy) ^ 
+        is_bit_sets(BIT_06, ascii_copy) ^ 
+        is_bit_sets(BIT_07, ascii_copy)
+    );
+
+    encode_copy += BIT_09 & is_bit_sets(BIT_05, ascii_copy);
+    encode_copy += BIT_10 & is_bit_sets(BIT_06, ascii_copy);
+    encode_copy += BIT_11 & is_bit_sets(BIT_07, ascii_copy);
+
+    *encode = encode_copy;
+}
+
+int main()
+{
+    uint16_t ascii = 77;
+    uint16_t encode = 0;
+
+    hamming(&ascii, &encode);
+    print_binary(encode);
+
+    return EXIT_SUCCESS;
+}
